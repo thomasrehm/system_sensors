@@ -88,10 +88,11 @@ def updateSensors():
         payload_str = payload_str + '", "wifi_strength": "' + get_wifi_strength()
     if "external_temp_humid_sensor_pin" in settings:
         humidity, temperature = get_external_sensor_temp_humidity()
-        payload_str = payload_str + '", "external_temperature": "' 
-            + humidity
-            + '", "external_humidty": "' 
-            + temperature
+        payload_str = (payload_str 
+        + '", "external_temperature": "' 
+        + humidity
+        + '", "external_humidty": "' 
+        + temperature)
     payload_str = payload_str + '"}'
     mqttClient.publish(
         topic="system-sensors/sensor/" + deviceName + "/state",
