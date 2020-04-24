@@ -15,7 +15,6 @@ import argparse
 
 UTC = pytz.utc
 DEFAULT_TIME_ZONE = None
-
 mqttClient = None
 SYSFILE = "/sys/devices/platform/soc/soc:firmware/get_throttled"
 WAIT_TIME_SECONDS = 60
@@ -65,6 +64,10 @@ def as_local(dattim: dt.datetime) -> dt.datetime:
 def get_last_boot():
     return str(as_local(utc_from_timestamp(psutil.boot_time())).isoformat())
 
+def get_external_sensor_temp_humidity():
+    import Adafruit_DHT
+    dht = Adafruit_DHT.read_retry(Adafruit_DHT.DHT11, settings["external_temp_humid_sensor_pin"])
+    return dht
 
 def updateSensors():
     payload_str=('{"temperature": '
@@ -83,7 +86,12 @@ def updateSensors():
     + get_last_boot())
     if "check_wifi_strength" in settings and settings["check_wifi_strength"]:
         payload_str = payload_str + '", "wifi_strength": "' + get_wifi_strength()
-    
+    if "external_temp_humid_sensor_pin" in settings:
+        humidity, temperature = get_external_sensor_temp_humidity()
+        payload_str = payload_str + '", "external_temperature": "' 
+            + humidity
+            + '", "external_humidty": "' 
+            + temperature
     payload_str = payload_str + '"}'
     mqttClient.publish(
         topic="system-sensors/sensor/" + deviceName + "/state",
@@ -359,6 +367,51 @@ if __name__ == "__main__":
             + 'Sensors","model":"RPI '
             + deviceName
             + '","manufacturer":"RPI"}}',
+            qos=1,
+            retain=True,
+        )
+    if "external_temp_humid_sensor_pin" in settings and settings["external_temp_humid_sensor_pin"]:
+        mqttClient.publish(
+            topic="homeassistant/sensor/"
+            + deviceName
+            + "/"
+            + deviceName
+            + "ExternalTemperature/config",
+            payload='{"device_class":"temperature","name":"'
+            + deviceName
+            + 'ExternalTemperature","state_topic":"external-sensors/sensor/'
+            + deviceName
+            + '/state","unit_of_measurement":"°C","value_template":"{{ value_json.external_temperature}}","unique_id":"'
+            + deviceName.lower()
+            + '_sensor_exteral_temperature","device":{"identifiers":["'
+            + deviceName.lower()
+            + '_sensor"],"name":"'
+            + deviceName
+            + 'Sensors","model":"RPI '
+            + deviceName
+            + '","manufacturer":"RPI", "icon":"mdi:thermometer"}}',
+            qos=1,
+            retain=True,
+        )
+        mqttClient.publish(
+            topic="homeassistant/sensor/"
+            + deviceName
+            + "/"
+            + deviceName
+            + "ExternalHumidity/config",
+            payload='{"device_class":"humidity","name":"'
+            + deviceName
+            + 'ExternalHumidity","state_topic":"external-sensors/sensor/'
+            + deviceName
+            + '/state","unit_of_measurement":"%","value_template":"{{ value_json.external_humidity}}","unique_id":"'
+            + deviceName.lower()
+            + '_sensor_exteral_humidity","device":{"identifiers":["'
+            + deviceName.lower()
+            + '_sensor"],"name":"'
+            + deviceName
+            + 'Sensors","model":"RPI '
+            + deviceName
+            + '","manufacturer":"RPI", "icon":"mdi:water-percent"}}',
             qos=1,
             retain=True,
         )

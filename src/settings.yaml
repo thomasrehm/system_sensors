@@ -5,6 +5,7 @@ mqtt:
   password: test
 deviceName: test
 client_id: test
+external_temp_humid_sensor_pin: 4
 timezone: Europe/Brussels
 power_integer_state: false #defaults to false
 update_interval: 60 #Defaults to 60
