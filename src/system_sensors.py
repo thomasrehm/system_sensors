@@ -106,8 +106,6 @@ def updateSensors():
             qos=1,
             retain=False,
         )
-        
-
 
 def get_temp():
     temp = check_output(["vcgencmd", "measure_temp"]).decode("UTF-8")
@@ -378,7 +376,7 @@ if __name__ == "__main__":
             qos=1,
             retain=True,
         )
-    if "external_temp_humid_sensor_pin" in settings and settings["external_temp_humid_sensor_pin"]:
+    if "external_temp_humid_sensor_pin" in settings:
         mqttClient.publish(
             topic="homeassistant/sensor/"
             + deviceName
@@ -389,15 +387,15 @@ if __name__ == "__main__":
             + deviceName
             + 'ExternalTemperature","state_topic":"external-sensors/sensor/'
             + deviceName
-            + '/state","unit_of_measurement":"°C","value_template":"{{ value_json.external_temperature }}","unique_id":"'
+            + '/state","unit_of_measurement":"°C","value_template":"{{ value_json.external_temperature}}","unique_id":"'
             + deviceName.lower()
-            + '_sensor_exteral_temperature","device":{"identifiers":["'
+            + '_sensor_external_temperature","device":{"identifiers":["'
             + deviceName.lower()
             + '_sensor"],"name":"'
             + deviceName
             + 'Sensors","model":"RPI '
             + deviceName
-            + '","manufacturer":"RPI", "icon":"mdi:thermometer"}}',
+            + '","manufacturer":"RPI"}}',
             qos=1,
             retain=True,
         )
@@ -413,13 +411,13 @@ if __name__ == "__main__":
             + deviceName
             + '/state","unit_of_measurement":"%","value_template":"{{ value_json.external_humidity}}","unique_id":"'
             + deviceName.lower()
-            + '_sensor_exteral_humidity","device":{"identifiers":["'
+            + '_sensor_external_humidity","device":{"identifiers":["'
             + deviceName.lower()
             + '_sensor"],"name":"'
             + deviceName
             + 'Sensors","model":"RPI '
             + deviceName
-            + '","manufacturer":"RPI", "icon":"mdi:water-percent"}}',
+            + '","manufacturer":"RPI"}}',
             qos=1,
             retain=True,
         )
