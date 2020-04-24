@@ -86,13 +86,6 @@ def updateSensors():
     + get_last_boot())
     if "check_wifi_strength" in settings and settings["check_wifi_strength"]:
         payload_str = payload_str + '", "wifi_strength": "' + get_wifi_strength()
-    if "external_temp_humid_sensor_pin" in settings:
-        humidity, temperature = get_external_sensor_temp_humidity()
-        payload_str = (payload_str 
-        + '", "external_temperature": "' 
-        + str(humidity)
-        + '", "external_humidty": "' 
-        + str(temperature))
     payload_str = payload_str + '"}'
     mqttClient.publish(
         topic="system-sensors/sensor/" + deviceName + "/state",
@@ -100,6 +93,20 @@ def updateSensors():
         qos=1,
         retain=False,
     )
+    if "external_temp_humid_sensor_pin" in settings:
+        humidity, temperature = get_external_sensor_temp_humidity()
+        ext_sensor_payload_str = ('{"external_temperature": "' 
+        + str(temperature)
+        + '", "external_humidity": "' 
+        + str(humidity)
+        + '"}')
+        mqttClient.publish(
+            topic="external-sensors/sensor/" + deviceName + "/state",
+            payload=ext_sensor_payload_str,
+            qos=1,
+            retain=False,
+        )
+        
 
 
 def get_temp():
@@ -382,7 +389,7 @@ if __name__ == "__main__":
             + deviceName
             + 'ExternalTemperature","state_topic":"external-sensors/sensor/'
             + deviceName
-            + '/state","unit_of_measurement":"°C","value_template":"{{ value_json.external_temperature}}","unique_id":"'
+            + '/state","unit_of_measurement":"°C","value_template":"{{ value_json.external_temperature }}","unique_id":"'
             + deviceName.lower()
             + '_sensor_exteral_temperature","device":{"identifiers":["'
             + deviceName.lower()
