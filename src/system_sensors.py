@@ -90,9 +90,9 @@ def updateSensors():
         humidity, temperature = get_external_sensor_temp_humidity()
         payload_str = (payload_str 
         + '", "external_temperature": "' 
-        + humidity
+        + str(humidity)
         + '", "external_humidty": "' 
-        + temperature)
+        + str(temperature))
     payload_str = payload_str + '"}'
     mqttClient.publish(
         topic="system-sensors/sensor/" + deviceName + "/state",
